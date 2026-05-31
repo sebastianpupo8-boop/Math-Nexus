@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MATH NEXUS — Reto de Matemáticas Aplicadas</title>
+  <link rel="stylesheet" href="Proyect.css" />
+  <!-- Fuentes distintivas: Orbitron (display futurista) + Exo 2 (cuerpo legible) -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ============================================================
+       FONDO ANIMADO: Partículas y grid futurista (canvas)
+  ============================================================ -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- ============================================================
+       PANTALLA 1: INICIO
+  ============================================================ -->
+  <section id="screen-start" class="screen active">
+    <div class="start-inner">
+      <div class="logo-ring">
+        <span class="logo-symbol">∑</span>
+      </div>
+      <h1 class="title-main">MATH<span class="accent">NEXUS</span></h1>
+      <p class="title-sub">Sistema de Entrenamiento en Matemáticas Aplicadas</p>
+      <div class="hiscore-badge" id="hiscore-display">RÉCORD: <span id="hiscore-val">0</span> PTS</div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="showScreen('screen-difficulty')">▶ INICIAR MISIÓN</button>
+        <button class="btn btn-outline" onclick="showScreen('screen-instructions')">📖 INSTRUCCIONES</button>
+      </div>
+
+      <p class="footer-note">Proyecto educativo · Materia: Lógica · Corporacion Universitaria del caribe CECAR</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PANTALLA 2: INSTRUCCIONES
+  ============================================================ -->
+  <section id="screen-instructions" class="screen">
+    <div class="panel">
+      <h2 class="panel-title">MANUAL DE OPERACIÓN</h2>
+      <div class="instructions-grid">
+
+        <div class="instr-card">
+          <div class="instr-icon">🎯</div>
+          <h3>Objetivo</h3>
+          <p>Resuelve retos de lógica matemática antes de que el tiempo se agote. Suma puntos y supera tu récord.</p>
+        </div>
+
+        <div class="instr-card">
+          <div class="instr-icon">❤️</div>
+          <h3>Vidas</h3>
+          <p>Tienes <strong>3 vidas</strong>. Cada respuesta incorrecta te quita una. ¡Sin vidas, la misión termina!</p>
+        </div>
+
+        <div class="instr-card">
+          <div class="instr-icon">⏱️</div>
+          <h3>Tiempo</h3>
+          <p>Cada pregunta tiene un límite de tiempo según la dificultad. Responder rápido te da puntos extra.</p>
+        </div>
+
+        <div class="instr-card">
+          <div class="instr-icon">📈</div>
+          <h3>Niveles</h3>
+          <p><strong>Fácil:</strong> Fracciones y Porcentajes.<br>
+             <strong>Medio:</strong> Regla de 3 y Tablas de Verdad.<br>
+             <strong>Difícil:</strong> Conjunción y problemas combinados.</p>
+        </div>
+
+        <div class="instr-card">
+          <div class="instr-icon">🔣</div>
+          <h3>Conectores</h3>
+          <p><strong>∧</strong> AND · <strong>∨</strong> OR · <strong>¬</strong> NOT<br>
+             <strong>→</strong> Condicional · <strong>↔</strong> Bicondicional<br>
+             <strong>%</strong> Porcentaje · <strong>÷</strong> Fracción</p>
+        </div>
+
+        <div class="instr-card">
+          <div class="instr-icon">⭐</div>
+          <h3>Puntuación</h3>
+          <p>Fácil: 10 pts · Medio: 20 pts · Difícil: 40 pts.<br>Bonus de velocidad hasta <strong>+20 pts</strong> por responder rápido.</p>
+        </div>
+
+      </div>
+
+      <button class="btn btn-primary" onclick="showScreen('screen-start')">← VOLVER</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PANTALLA 3: SELECCIÓN DE DIFICULTAD
+  ============================================================ -->
+  <section id="screen-difficulty" class="screen">
+    <div class="panel panel-sm">
+      <h2 class="panel-title">SELECCIONA NIVEL</h2>
+      <p class="panel-sub">Elige la dificultad de tu misión</p>
+
+      <div class="diff-cards">
+        <button class="diff-card diff-easy" onclick="startGame('easy')">
+          <span class="diff-icon">🟢</span>
+          <span class="diff-name">FÁCIL</span>
+          <span class="diff-desc">Fracciones (suma, resta, simplificación) · Porcentajes<br>30 seg / pregunta</span>
+        </button>
+        <button class="diff-card diff-medium" onclick="startGame('medium')">
+          <span class="diff-icon">🟡</span>
+          <span class="diff-name">MEDIO</span>
+          <span class="diff-desc">Regla de 3 directa e inversa · Tablas de Verdad AND/OR<br>20 seg / pregunta</span>
+        </button>
+        <button class="diff-card diff-hard" onclick="startGame('hard')">
+          <span class="diff-icon">🔴</span>
+          <span class="diff-name">DIFÍCIL</span>
+          <span class="diff-desc">Conjunción lógica avanzada · Fracciones y % combinados · Regla de 3<br>15 seg / pregunta</span>
+        </button>
+      </div>
+
+      <button class="btn btn-outline" onclick="showScreen('screen-start')">← ATRÁS</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PANTALLA 4: JUEGO PRINCIPAL
+  ============================================================ -->
+  <section id="screen-game" class="screen">
+
+    <!-- HUD superior -->
+    <div class="hud">
+      <div class="hud-item">
+        <span class="hud-label">PUNTOS</span>
+        <span class="hud-value" id="score-display">0</span>
+      </div>
+      <div class="hud-item hud-center">
+        <div class="lives-container" id="lives-container">
+          <!-- Vidas generadas por JS -->
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <span class="hud-label" id="question-counter">Pregunta 1 / 10</span>
+      </div>
+      <div class="hud-item hud-right">
+        <span class="hud-label">TIEMPO</span>
+        <div class="timer-ring">
+          <svg viewBox="0 0 60 60">
+            <circle cx="30" cy="30" r="26" class="timer-track"/>
+            <circle cx="30" cy="30" r="26" class="timer-fill" id="timer-svg-circle"/>
+          </svg>
+          <span class="timer-val" id="timer-display">30</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Área de pregunta -->
+    <div class="question-area" id="question-area">
+
+      <div class="question-badge" id="question-type-badge">OPCIÓN MÚLTIPLE</div>
+      <div class="question-text" id="question-text">Cargando...</div>
+
+      <!-- Opciones de respuesta -->
+      <div class="options-grid" id="options-grid">
+        <!-- Generado dinámicamente por JS -->
+      </div>
+
+      <!-- Tabla de verdad interactiva (se muestra solo cuando aplica) -->
+      <div class="truth-table-wrap" id="truth-table-wrap" style="display:none;">
+        <table class="truth-table" id="truth-table">
+          <!-- Generado dinámicamente por JS -->
+        </table>
+      </div>
+
+      <!-- Drag & Drop zona (se muestra cuando aplica) -->
+      <div class="drag-zone" id="drag-zone" style="display:none;">
+        <div class="drag-target-row" id="drag-targets">
+          <!-- Generado dinámicamente por JS -->
+        </div>
+        <div class="drag-pieces" id="drag-pieces">
+          <!-- Generado dinámicamente por JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Feedback de respuesta -->
+    <div class="feedback-overlay" id="feedback-overlay">
+      <div class="feedback-icon" id="feedback-icon">✓</div>
+      <div class="feedback-text" id="feedback-text">¡Correcto!</div>
+      <div class="feedback-points" id="feedback-points">+10 pts</div>
+    </div>
+
+    <!-- Mensaje motivacional -->
+    <div class="motivational" id="motivational-msg"></div>
+
+    <button class="btn btn-sm btn-outline" id="btn-quit" onclick="confirmQuit()">✖ ABANDONAR</button>
+  </section>
+
+  <!-- ============================================================
+       PANTALLA 5: RESULTADO FINAL
+  ============================================================ -->
+  <section id="screen-result" class="screen">
+    <div class="panel panel-sm result-panel">
+      <div class="result-header" id="result-header">
+        <div class="result-trophy" id="result-trophy">🏆</div>
+        <h2 class="result-title" id="result-title">MISIÓN COMPLETADA</h2>
+      </div>
+
+      <div class="result-stats">
+        <div class="stat-item">
+          <span class="stat-label">PUNTUACIÓN</span>
+          <span class="stat-value accent" id="res-score">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">RESPUESTAS CORRECTAS</span>
+          <span class="stat-value" id="res-correct">0 / 10</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">PRECISIÓN</span>
+          <span class="stat-value" id="res-accuracy">0%</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">NIVEL</span>
+          <span class="stat-value" id="res-level">FÁCIL</span>
+        </div>
+        <div class="stat-item stat-hi" id="stat-hi" style="display:none;">
+          <span class="stat-label">🎉 ¡NUEVO RÉCORD!</span>
+          <span class="stat-value accent" id="res-hiscore">0</span>
+        </div>
+      </div>
+
+      <div class="result-message" id="result-message">¡Bien hecho!</div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="showScreen('screen-difficulty')">🔄 JUGAR DE NUEVO</button>
+        <button class="btn btn-outline" onclick="showScreen('screen-start')">🏠 MENÚ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       EFECTOS DE SONIDO (Web Audio API — sin archivos externos)
+  ============================================================ -->
+  <!-- Generados por JS con AudioContext -->
+
+  <script src="proyec.js"></script>
+</body>
+</html>
